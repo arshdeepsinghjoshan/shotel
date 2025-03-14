@@ -15365,6 +15365,7 @@ html:not(.layout-menu-fixed) .menu-inner-shadow {
     left: 0.9rem;
     min-width: auto;
     width: 92%;
+    background-color: aliceblue;
   }
 }
 

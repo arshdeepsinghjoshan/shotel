@@ -85,7 +85,7 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item {{ $segment1 == 'room' ? 'active' : '' }}">
-                    <a href="{{ url('rooms') }}" class="menu-link">
+                    <a href="{{ url('room') }}" class="menu-link">
                         <div data-i18n="Account">Rooms</div>
                     </a>
                 </li>

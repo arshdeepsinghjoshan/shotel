@@ -8,6 +8,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SubscribedPlanController;
 use App\Http\Controllers\SubscriptionPlanController;
@@ -188,5 +189,16 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::get('installment/create', [InstallmentController::class, 'create']);
         Route::get('/installment/get-list', [InstallmentController::class, 'getList']);
         Route::get('/installment/view/{id}', [InstallmentController::class, 'view']);
+
+
+        Route::post('room/store', [RoomController::class, 'store']);
+        Route::get('room', [RoomController::class, 'index']);
+        Route::get('room/create', [RoomController::class, 'create']);
+        Route::get('/room/get-list', [RoomController::class, 'getList']);
+        Route::get('/room/view/{id}', [RoomController::class, 'view']);
+        Route::post('room/update', [RoomController::class, 'update'])->name('room.update');
+        Route::post('room/add', [RoomController::class, 'add'])->name('room.add');
+        Route::get('/room/edit/{id}', [RoomController::class, 'edit']);
+
     });
 });

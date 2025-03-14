@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Department;
 use App\Models\Product;
+use App\Models\Room;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -19,8 +20,8 @@ class RoomController extends Controller
     public function index()
     {
         try {
-            $model = new Product();
-            return view('product.index', compact('model'));
+            $model = new Room();
+            return view('room.index', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
@@ -84,14 +85,14 @@ class RoomController extends Controller
                 }
 
                 // Insert into database
-                Product::insert($productsToInsert);
+                Room::insert($productsToInsert);
 
                 return redirect()->back()->with('success', 'File imported successfully! Products added: ' . count($productsToInsert));
             }
 
             // For GET request
-            $model = new Product();
-            return view('product.import', compact('model'));
+            $model = new Room();
+            return view('room.import', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
@@ -102,12 +103,12 @@ class RoomController extends Controller
     {
         try {
             $id = $request->id;
-            $model  = Product::find($id);
+            $model  = Room::find($id);
             if ($model) {
 
-                return view('product.update', compact('model'));
+                return view('room.update', compact('model'));
             } else {
-                return redirect()->back()->with('error', 'Product not found');
+                return redirect()->back()->with('error', 'Room not found');
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
@@ -120,10 +121,10 @@ class RoomController extends Controller
     {
         try {
 
-            $model  = new Product();
+            $model  = new Room();
             if ($model) {
 
-                return view('product.add', compact('model'));
+                return view('room.add', compact('model'));
             } else {
                 return redirect('404');
             }
@@ -135,29 +136,29 @@ class RoomController extends Controller
     {
         try {
             $id = $request->id;
-            $model  = Product::find($id);
+            $model  = Room::find($id);
             if ($model) {
 
-                return view('product.view', compact('model'));
+                return view('room.view', compact('model'));
             } else {
-                return redirect('/product')->with('error', 'Product not found');
+                return redirect('/room')->with('error', 'Room not found');
             }
         } catch (\Exception $e) {
-            return redirect('/product')->with('error', 'An error occurred: ' . $e->getMessage());
+            return redirect('/room')->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 
 
     public function update(Request $request)
     {
-        if ($this->validator($request->all())->fails()) {
-            $message = $this->validator($request->all())->messages()->first();
+        if ($this->validator($request->all(), $request->id)->fails()) {
+            $message = $this->validator($request->all(), $request->id)->messages()->first();
             return redirect()->back()->withInput()->with('error', $message);
         }
         try {
-            $model = Product::find($request->id);
+            $model = Room::find($request->id);
             if (!$model) {
-                return redirect()->back()->with('error', 'Product not found');
+                return redirect()->back()->with('error', 'Room not found');
             }
             $all_images = null;
 
@@ -177,9 +178,9 @@ class RoomController extends Controller
             $model->fill($request->all());
             $model->image = $all_images;
             if ($model->save()) {
-                return redirect()->back()->with('success', 'Product updated successfully!');
+                return redirect()->back()->with('success', 'Room updated successfully!');
             } else {
-                return redirect()->back()->with('error', 'Product not updated');
+                return redirect()->back()->with('error', 'Room not updated');
             }
         } catch (\Exception $e) {
             $bug = $e->getMessage();
@@ -195,9 +196,9 @@ class RoomController extends Controller
     public function getList(Request $request, $id = null)
     {
         if (User::isUser()) {
-            $query = Product::my()->orderBy('id', 'desc');
+            $query = Room::my()->orderBy('id', 'desc');
         } else {
-            $query = Product::orderBy('id', 'desc');
+            $query = Room::orderBy('id', 'desc');
         }
 
         if (!empty($id))
@@ -217,8 +218,8 @@ class RoomController extends Controller
             ->addColumn('created_by', function ($data) {
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
             })
-            ->addColumn('title', function ($data) {
-                return !empty($data->title) ? (strlen($data->title) > 60 ? substr(ucfirst($data->title), 0, 60) . '...' : ucfirst($data->title)) : 'N/A';
+            ->addColumn('note', function ($data) {
+                return !empty($data->note) ? (strlen($data->note) > 60 ? substr(ucfirst($data->note), 0, 60) . '...' : ucfirst($data->note)) : 'N/A';
             })
             ->addColumn('price', function ($data) {
                 return number_format($data->price, 2);
@@ -226,13 +227,29 @@ class RoomController extends Controller
             ->addColumn('status', function ($data) {
                 return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
             })
+
+
+            ->addColumn('type', function ($data) {
+                return  $data->getType();
+            })
+
+
+            ->addColumn('ac_type', function ($data) {
+                return $data->getAcType();
+            })
+
+
+            ->addColumn('meal', function ($data) {
+                return $data->getMealType();
+            })
+
             ->rawColumns(['created_by'])
 
             ->addColumn('created_at', function ($data) {
                 return (empty($data->created_at)) ? 'N/A' : date('Y-m-d', strtotime($data->created_at));
             })
             ->addColumn('status', function ($data) {
-                $select = '<select class="form-select state-change"  data-id="' . $data->id . '" data-modeltype="' . Product::class . '" aria-label="Default select example">';
+                $select = '<select class="form-select state-change"  data-id="' . $data->id . '" data-modeltype="' . Room::class . '" aria-label="Default select example">';
                 foreach ($data->getStateOptions() as $key => $option) {
                     $select .= '<option value="' . $key . '"' . ($data->state_id == $key ? ' selected' : '') . '>' . $option . '</option>';
                 }
@@ -242,9 +259,9 @@ class RoomController extends Controller
 
             ->addColumn('action', function ($data) {
                 $html = '<div class="table-actions text-center">';
-                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('product/view/' . $data->id) . '"  ><i class="fa fa-eye
+                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('room/view/' . $data->id) . '"  ><i class="fa fa-eye
                 "data-toggle="tooltip"  title="View"></i></a>';
-                $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('product/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
+                $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('room/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
                 $html .=  '</div>';
                 return $html;
             })->addColumn('customerClickAble', function ($data) {
@@ -295,19 +312,39 @@ class RoomController extends Controller
 
 
 
-
     protected static function validator(array $data, $id = null)
     {
         return Validator::make(
             $data,
             [
-                'name' => 'required|string|max:255',
-                'price' => 'required',
-                'description' => 'string|max:255',
-                'remaining_quantity' => ['integer', 'max:' . $data['quantity_in_stock']],
+                'room_number' => 'required|string|max:50|unique:rooms,room_number,' . $id,
+                'price' => 'required|numeric|min:0',
+
+                // 0=>Single, 1=> Double, 2=> Villa, 3=> Deluxe, 4=> Super Deluxe
+                'type_id' => 'required|integer|in:0,1,2,3,4',
+
+                // Meal type: 0=>None, 1=>Breakfast, 2=>Half Board, 3=>Full Board
+                'meal_type' => ['required', 'integer', 'in:0,1,2,3'],
+
+                // AC Type: 0=>Non-AC, 1=>AC, 2=>Central AC, 3=>Split AC
+                'ac_type' => ['required', 'integer', 'in:0,1,2,3'],
+
+                // State: 0=>Available, 1=>Booked, 2=>Under Maintenance, 3=>Out of Order
+                'state_id' => ['required', 'integer', 'in:0,1,2,3'],
+
+                // Capacity should be a positive integer (e.g., max 10 people)
+                'capacity' => ['required', 'integer', 'min:1', 'max:10'],
+
+                // Room images (optional but must be an image if provided)
+                'images' => ['nullable', 'array'],
+                'images.*' => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // max 2MB per image
+
+                // Room description (optional)
+                'description' => ['nullable', 'string', 'max:1000'],
             ]
         );
     }
+
 
     public function add(Request $request)
     {
@@ -333,18 +370,17 @@ class RoomController extends Controller
                 }
             }
 
-            // Create a new product model
-            $model = new Product();
+            // Create a new Room model
+            $model = new Room();
             $model->fill($request->all());
-            $model->state_id = Product::STATE_ACTIVE;
             $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
             $model->created_by_id = Auth::user()->id;
 
             // Save the model
             if ($model->save()) {
-                return redirect('/product')->with('success', 'Product created successfully!');
+                return redirect('/room')->with('success', 'Room created successfully!');
             } else {
-                return redirect('/product/create')->with('error', 'Unable to save the Product!');
+                return redirect('/room/create')->with('error', 'Unable to save the Room!');
             }
         } catch (\Exception $e) {
             $bug = $e->getMessage();
@@ -357,12 +393,12 @@ class RoomController extends Controller
     public function stateChange($id, $state)
     {
         try {
-            $model = Product::find($id);
+            $model = Room::find($id);
             if ($model) {
                 $update = $model->update([
                     'state_id' => $state,
                 ]);
-                return redirect()->back()->with('success', 'Product has been ' . (($model->getState() != "New") ? $model->getState() . 'd!' : $model->getState()));
+                return redirect()->back()->with('success', 'Room has been ' . (($model->getState() != "New") ? $model->getState() . 'd!' : $model->getState()));
             } else {
                 return redirect('404');
             }
@@ -375,10 +411,10 @@ class RoomController extends Controller
     public function finalDelete($id)
     {
         try {
-            $model = Product::find($id);
+            $model = Room::find($id);
             if ($model) {
                 $model->delete();
-                return redirect('support')->with('success', 'Product has been deleted successfully!');
+                return redirect('support')->with('success', 'Room has been deleted successfully!');
             } else {
                 return redirect('404');
             }
