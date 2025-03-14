@@ -3614,6 +3614,7 @@ textarea.form-control-lg {
   }
   .navbar-expand-xl .navbar-nav .dropdown-menu {
     position: absolute;
+    background-color: aliceblue;
   }
   .navbar-expand-xl .navbar-nav .nav-link {
     padding-right: 0.5rem;
@@ -15215,6 +15216,7 @@ html:not(.layout-menu-fixed) .menu-inner-shadow {
   width: 100%;
   display: flex;
   flex: 1 1 auto;
+  background-color: aliceblue;
   align-items: stretch;
 }
 
