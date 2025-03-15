@@ -10,16 +10,26 @@ class Booking extends Model
 {
     use HasFactory;
 
-    const STATE_INACTIVE = 0;
-
-    const STATE_ACTIVE = 1;
-
     const TYPE_GRIND = 0;
 
     const TYPE_PRODUCT = 1;
 
     const STATE_DELETE = 2;
 
+
+    const STATE_PENDING = 0;
+
+    const STATE_CONFIRMED = 1;
+
+    const STATE_CHECKED_IN = 2;
+
+    const STATE_CHECKED_OUT = 3;
+
+    const STATE_CANCELED = 4;
+
+    const IS_PAID = 1;
+
+    const NOT_PAID = 0;
 
     use AActiveRecord;
 
@@ -32,26 +42,30 @@ class Booking extends Model
     public static function getStateOptions()
     {
         return [
-            self::STATE_INACTIVE => "Inactive",
-            self::STATE_ACTIVE => "Active",
-            self::STATE_DELETE => "Delete",
+            self::STATE_PENDING => 'Pending',
+            self::STATE_CONFIRMED => 'Confirmed',
+            self::STATE_CHECKED_IN => 'Checked In',
+            self::STATE_CHECKED_OUT => 'Checked Out',
+            self::STATE_CANCELED => 'Canceled',
         ];
     }
 
 
-    /**
-     * Automatically update remaining_quantity when quantity_in_stock changes
-     */
-    public function setQuantityInStockAttribute($value)
+    public static function getIsPaidOptions()
     {
-        // If it's a new record, set remaining_quantity equal to quantity_in_stock
-        
-            $this->attributes['remaining_quantity'] = $value;
-        
-        
-        // Set quantity_in_stock
-        $this->attributes['quantity_in_stock'] = $value;
+        return [
+            self::NOT_PAID => "Not Paid",
+            self::IS_PAID => "Paid",
+        ];
     }
+    public function getIsPaid()
+    {
+        $list = self::getIsPaidOptions();
+        return isset($list[$this->is_paid]) ? $list[$this->is_paid] : 'Not Defined';
+    }
+
+
+
     public static function getTypeOptions()
     {
         return [
@@ -67,9 +81,12 @@ class Booking extends Model
     public static function getStateOptionsBadge($stateValue)
     {
         $list = [
-            self::STATE_ACTIVE => "success",
-            self::STATE_INACTIVE => "secondary",
-            self::STATE_DELETE => "danger",
+        
+            self::STATE_PENDING => 'secondary',
+            self::STATE_CONFIRMED => 'success',
+            self::STATE_CHECKED_IN => 'success',
+            self::STATE_CHECKED_OUT => 'success',
+            self::STATE_CANCELED => 'danger',
 
         ];
         return isset($stateValue) ? $list[$stateValue] : 'Not Defined';
@@ -77,9 +94,12 @@ class Booking extends Model
     public function getStateButtonOption($state_id = null)
     {
         $list = [
-            self::STATE_ACTIVE => "success",
-            self::STATE_INACTIVE => "secondary",
-            self::STATE_DELETE => "danger",
+        
+            self::STATE_PENDING => 'secondary',
+            self::STATE_CONFIRMED => 'success',
+            self::STATE_CHECKED_IN => 'success',
+            self::STATE_CHECKED_OUT => 'success',
+            self::STATE_CANCELED => 'danger',
 
         ];
         return isset($list[$state_id]) ? 'btn btn-' . $list[$state_id] : 'Not Defined';
@@ -92,9 +112,12 @@ class Booking extends Model
     public function getStateBadgeOption()
     {
         $list = [
-            self::STATE_ACTIVE => "success",
-            self::STATE_INACTIVE => "secondary",
-            self::STATE_DELETE => "danger",
+         
+            self::STATE_PENDING => 'secondary',
+            self::STATE_CONFIRMED => 'success',
+            self::STATE_CHECKED_IN => 'success',
+            self::STATE_CHECKED_OUT => 'success',
+            self::STATE_CANCELED => 'danger',
         ];
         return isset($list[$this->state_id]) ? 'badge bg-' . $list[$this->state_id] : 'Not Defined';
     }
@@ -117,6 +140,27 @@ class Booking extends Model
         return isset($list[$this->priority_id]) ? $list[$this->priority_id] : 'Not Defined';
     }
 
+
+    public function getUserOption()
+    {
+        return User::where('state_id', User::STATE_ACTIVE)->get();
+    }
+
+
+    public function getRoomOption()
+    {
+        return Room::where('state_id', Room::STATE_OPEN)->get();
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'room_id');
+    }
 
     public function getCategoryOption()
     {

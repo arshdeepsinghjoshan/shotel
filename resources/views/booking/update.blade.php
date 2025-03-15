@@ -1,4 +1,5 @@
 @extends('layouts.master')
+@section('title', 'Booking Update')
 @section('content')
     <x-a-breadcrumb :columns="[
         [
@@ -6,10 +7,14 @@
             'label' => 'Home',
         ],
         [
-            'url' => 'table',
-            'label' => 'Tables',
+            'url' => 'booking',
+            'label' => 'Bookings',
         ],
-        $model->table_number,
+        !empty($model->user->name)
+            ? (strlen($model->user->name) > 100
+                ? substr($model->user->name, 0, 100) . '...'
+                : $model->user->name)
+            : 'N/A',
     ]" />
 
 
@@ -27,7 +32,7 @@
                         </h3>
                     </div>
                     <div class="card-body">
-                        @include('table._form')
+                        @include('booking._form')
 
                     </div>
                 </div>

@@ -211,10 +211,7 @@ class RoomController extends Controller
 
         return Datatables::of($query)
             ->addIndexColumn()
-            ->addColumn('select', function ($data) {
-                $checked = $data->cart ? 'checked' : ''; // If the relationship exists, mark as checked
-                return '<input class="form-check-input select-product" data-product_id="' . $data->id . '" type="checkbox" ' . $checked . ' value="" >';
-            })
+         
             ->addColumn('created_by', function ($data) {
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
             })

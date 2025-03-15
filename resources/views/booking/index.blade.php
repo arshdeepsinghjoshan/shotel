@@ -1,6 +1,5 @@
 @extends('layouts.master')
 @section('title', 'Room Index')
-
 @section('content')
 
 
@@ -25,7 +24,7 @@
                     <div class="card-body">
                         <x-a-update-menu-items :model="$model" :action="'index'" />
                         <div class="table-responsive">
-                            <x-a-grid-view :id="'booking_table'" :model="$model" :url="'booking/get-list/'" :columns="['id', 'check_in', 'check_out','total_price','is_paid', 'status', 'action']" />
+                            <x-a-grid-view :id="'booking_table'" :model="$model" :url="'booking/get-list/'" :columns="['id','user','room', 'check_in', 'check_out','total_price','is_paid', 'status', 'action']" />
                         </div>
                     </div>
                 </div>

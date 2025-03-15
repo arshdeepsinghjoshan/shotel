@@ -1,6 +1,5 @@
 @extends('layouts.master')
 @section('title', 'Room Add')
-
 @section('content')
     <x-a-breadcrumb :columns="[
         [
@@ -8,8 +7,8 @@
             'label' => 'Home',
         ],
         [
-            'url' => 'table',
-            'label' => 'Tables',
+           'url' => 'booking',
+            'label' => 'Bookings',
         ],
     ]" />
 
@@ -27,7 +26,7 @@
                         </h3>
                     </div>
                     <div class="card-body">
-                        @include('table._form')
+                        @include('booking._form')
                     </div>
                 </div>
             </div>

@@ -1,4 +1,5 @@
 @extends('layouts.master')
+@section('title', 'Booking View')
 @section('content')
     <?php
     
@@ -13,10 +14,10 @@
             'url' => 'table',
             'label' => 'Tables',
         ],
-        !empty($model->table_number)
-            ? (strlen($model->table_number) > 100
-                ? substr($model->table_number, 0, 100) . '...'
-                : $model->table_number)
+        !empty($model->user->name)
+            ? (strlen($model->user->name) > 100
+                ? substr($model->user->name, 0, 100) . '...'
+                : $model->user->name)
             : 'N/A',
     ]" />
 
@@ -25,14 +26,37 @@
             <div class="col-lg-12 mb-4 order-0">
                 <div class="card">
                     <div class="card-body">
-                        <h5>{{ !empty($model->table_number) ? (strlen($model->table_number) > 100 ? substr($model->table_number, 0, 100) . '...' : $model->table_number) : 'N/A' }}
+                        <h5>{{ !empty($model->user->name) ? (strlen($model->user->name) > 100 ? substr($model->user->name, 0, 100) . '...' : $model->user->name) : 'N/A' }}
                             <span class="{{ $model->getStateBadgeOption() }}">{{ $model->getState() }}</span>
                         </h5>
 
                         <x-a-detail-view :model="$model" :type="'single'" :column="[
                             'id',
-                            'table_number',
-                            'seats',
+                            [
+                                'label' => 'Customer Name',
+                                'value' => !empty($model->user && $model->user->name) ? $model->user->name : 'N/A',
+                            ],
+                            [
+                                'label' => 'Room Number',
+                                'value' => !empty($model->room && $model->room->room_number)
+                                    ? $model->room->room_number
+                                    : 'N/A',
+                            ],
+                        
+                            [
+                                'attribute' => 'check_in',
+                                'label' => 'Check In',
+                                'value' => empty($model->check_in)
+                                    ? 'N/A'
+                                    : date('Y-m-d h:i:s A', strtotime($model->check_in)),
+                            ],
+                            [
+                                'attribute' => 'check_out',
+                                'label' => 'Check Out',
+                                'value' => empty($model->check_out)
+                                    ? 'N/A'
+                                    : date('Y-m-d h:i:s A', strtotime($model->check_out)),
+                            ],
                         
                             [
                                 'attribute' => 'created_at',

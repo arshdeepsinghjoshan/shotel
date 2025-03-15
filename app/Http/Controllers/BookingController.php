@@ -6,6 +6,7 @@ use App\Models\Booking;
 use Illuminate\Http\Request;
 use App\Models\Department;
 use App\Models\Product;
+use App\Models\Room;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -211,12 +212,15 @@ class BookingController extends Controller
 
         return Datatables::of($query)
             ->addIndexColumn()
-            ->addColumn('select', function ($data) {
-                $checked = $data->cart ? 'checked' : ''; // If the relationship exists, mark as checked
-                return '<input class="form-check-input select-product" data-product_id="' . $data->id . '" type="checkbox" ' . $checked . ' value="" >';
-            })
+
             ->addColumn('created_by', function ($data) {
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
+            })
+            ->addColumn('user', function ($data) {
+                return !empty($data->user && $data->user->name) ? $data->user->name : 'N/A';
+            })
+            ->addColumn('room', function ($data) {
+                return !empty($data->room && $data->room->room_number) ? $data->room->room_number : 'N/A';
             })
             ->addColumn('title', function ($data) {
                 return !empty($data->title) ? (strlen($data->title) > 60 ? substr(ucfirst($data->title), 0, 60) . '...' : ucfirst($data->title)) : 'N/A';
@@ -226,6 +230,9 @@ class BookingController extends Controller
             })
             ->addColumn('status', function ($data) {
                 return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
+            })
+            ->addColumn('is_paid', function ($data) {
+                return $data->getIsPaid();
             })
             ->rawColumns(['created_by'])
 
@@ -243,9 +250,9 @@ class BookingController extends Controller
 
             ->addColumn('action', function ($data) {
                 $html = '<div class="table-actions text-center">';
-                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('product/view/' . $data->id) . '"  ><i class="fa fa-eye
+                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('booking/view/' . $data->id) . '"  ><i class="fa fa-eye
                 "data-toggle="tooltip"  title="View"></i></a>';
-                $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('product/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
+                $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('booking/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
                 $html .=  '</div>';
                 return $html;
             })->addColumn('customerClickAble', function ($data) {
@@ -256,6 +263,7 @@ class BookingController extends Controller
             ->rawColumns([
                 'action',
                 'created_at',
+                'is_paid',
                 'status',
                 'customerClickAble',
                 'select'
@@ -269,16 +277,22 @@ class BookingController extends Controller
                     $query->where(function ($q) use ($searchTerms) {
                         foreach ($searchTerms as $term) {
                             $q->where('id', 'like', "%$term%")
-                                ->orWhere('name', 'like', "%$term%")
-                                ->orWhere('price', 'like', "%$term%")
-                                ->orWhere('quantity_in_stock', 'like', "%$term%")
-                                ->orWhere('remaining_quantity', 'like', "%$term%")
+                                ->orWhere('total_price', 'like', "%$term%")
+                                ->orWhere('is_paid', 'like', "%$term%")
                                 ->orWhere('created_at', 'like', "%$term%")
+                                ->orWhere('check_in', 'like', "%$term%")
+                                ->orWhere('check_out', 'like', "%$term%")
                                 ->orWhere(function ($query) use ($term) {
                                     $query->searchState($term);
                                 })
                                 ->orWhereHas('createdBy', function ($query) use ($term) {
                                     $query->where('name', 'like', "%$term%");
+                                })
+                                ->orWhereHas('user', function ($query) use ($term) {
+                                    $query->where('name', 'like', "%$term%");
+                                })
+                                ->orWhereHas('room', function ($query) use ($term) {
+                                    $query->where('room_number', 'like', "%$term%");
                                 });
                         }
                     });
@@ -302,10 +316,10 @@ class BookingController extends Controller
         return Validator::make(
             $data,
             [
-                'name' => 'required|string|max:255',
-                'price' => 'required',
-                'description' => 'string|max:255',
-                'remaining_quantity' => ['integer', 'max:' . $data['quantity_in_stock']],
+                'user_id' => 'required|exists:users,id',
+                'room_id' => 'required|exists:rooms,id',
+                'check_in' => 'required|date|after:today',
+                'check_out' => 'required|date|after:check_in',
             ]
         );
     }
@@ -333,19 +347,22 @@ class BookingController extends Controller
                     }
                 }
             }
-
+            $roomModel = Room::find($request->room_id);
+            if (!$roomModel) {
+                return redirect()->back()->withInput()->with('error', 'Room not found.');
+            }
             // Create a new product model
             $model = new Booking();
             $model->fill($request->all());
-            $model->state_id = Booking::STATE_ACTIVE;
+            $model->total_price = $roomModel->price;
             $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
             $model->created_by_id = Auth::user()->id;
 
             // Save the model
             if ($model->save()) {
-                return redirect('/product')->with('success', 'Booking created successfully!');
+                return redirect('/booking')->with('success', 'Booking created successfully!');
             } else {
-                return redirect('/product/create')->with('error', 'Unable to save the Product!');
+                return redirect('/booking/create')->with('error', 'Unable to save the booking!');
             }
         } catch (\Exception $e) {
             $bug = $e->getMessage();

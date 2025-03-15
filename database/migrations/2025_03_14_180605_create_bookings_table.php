@@ -21,10 +21,10 @@ return new class extends Migration
             $table->boolean('is_paid')->default(false);
             $table->integer('type_id')->default(0);
             $table->integer('state_id')->default(1);
-            $table->decimal('price', 10, 2);
             $table->string('image')->nullable();
             $table->text('images')->nullable();
             $table->timestamps();
+            $table->integer('created_by_id')->default(null);
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
