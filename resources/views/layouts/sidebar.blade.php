@@ -147,8 +147,8 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item {{ $segment1 == 'booking' ? 'active' : '' }}">
-                    <a href="{{ url('booking/account') }}" class="menu-link">
-                        <div data-i18n="Account">Bookings</div>
+                    <a href="{{ url('booking') }}" class="menu-link">
+                        <div data-i18n="booking">Bookings</div>
                     </a>
                 </li>
             </ul>

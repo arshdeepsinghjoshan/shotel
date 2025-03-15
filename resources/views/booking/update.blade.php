@@ -1,6 +1,4 @@
 @extends('layouts.master')
-@section('title', 'Table Add')
-
 @section('content')
     <x-a-breadcrumb :columns="[
         [
@@ -11,7 +9,9 @@
             'url' => 'table',
             'label' => 'Tables',
         ],
+        $model->table_number,
     ]" />
+
 
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="row">
@@ -28,6 +28,7 @@
                     </div>
                     <div class="card-body">
                         @include('table._form')
+
                     </div>
                 </div>
             </div>

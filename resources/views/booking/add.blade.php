@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', 'Table Add')
+@section('title', 'Room Add')
 
 @section('content')
     <x-a-breadcrumb :columns="[

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InstallmentController;
@@ -211,5 +212,14 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::post('table/add', [TableController::class, 'add'])->name('table.add');
         Route::get('/table/edit/{id}', [TableController::class, 'edit']);
 
+
+        Route::post('booking/store', [BookingController::class, 'store']);
+        Route::get('booking', [BookingController::class, 'index']);
+        Route::get('booking/create', [BookingController::class, 'create']);
+        Route::get('/booking/get-list', [BookingController::class, 'getList']);
+        Route::get('/booking/view/{id}', [BookingController::class, 'view']);
+        Route::post('booking/update', [BookingController::class, 'update'])->name('booking.update');
+        Route::post('booking/add', [BookingController::class, 'add'])->name('booking.add');
+        Route::get('/booking/edit/{id}', [BookingController::class, 'edit']);
     });
 });

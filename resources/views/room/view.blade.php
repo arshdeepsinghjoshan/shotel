@@ -1,4 +1,6 @@
 @extends('layouts.master')
+@section('title', $model->room_number)
+
 @section('content')
     <?php
     

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use App\Models\Department;
 use App\Models\Product;
@@ -19,8 +20,8 @@ class BookingController extends Controller
     public function index()
     {
         try {
-            $model = new Product();
-            return view('product.index', compact('model'));
+            $model = new Booking();
+            return view('booking.index', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
@@ -84,14 +85,14 @@ class BookingController extends Controller
                 }
 
                 // Insert into database
-                Product::insert($productsToInsert);
+                Booking::insert($productsToInsert);
 
                 return redirect()->back()->with('success', 'File imported successfully! Products added: ' . count($productsToInsert));
             }
 
             // For GET request
-            $model = new Product();
-            return view('product.import', compact('model'));
+            $model = new Booking();
+            return view('booking.import', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
@@ -102,12 +103,12 @@ class BookingController extends Controller
     {
         try {
             $id = $request->id;
-            $model  = Product::find($id);
+            $model  = Booking::find($id);
             if ($model) {
 
-                return view('product.update', compact('model'));
+                return view('booking.update', compact('model'));
             } else {
-                return redirect()->back()->with('error', 'Product not found');
+                return redirect()->back()->with('error', 'Booking not found');
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
@@ -120,10 +121,10 @@ class BookingController extends Controller
     {
         try {
 
-            $model  = new Product();
+            $model  = new Booking();
             if ($model) {
 
-                return view('product.add', compact('model'));
+                return view('booking.add', compact('model'));
             } else {
                 return redirect('404');
             }
@@ -135,12 +136,12 @@ class BookingController extends Controller
     {
         try {
             $id = $request->id;
-            $model  = Product::find($id);
+            $model  = Booking::find($id);
             if ($model) {
 
-                return view('product.view', compact('model'));
+                return view('booking.view', compact('model'));
             } else {
-                return redirect('/product')->with('error', 'Product not found');
+                return redirect('/product')->with('error', 'Booking not found');
             }
         } catch (\Exception $e) {
             return redirect('/product')->with('error', 'An error occurred: ' . $e->getMessage());
@@ -155,9 +156,9 @@ class BookingController extends Controller
             return redirect()->back()->withInput()->with('error', $message);
         }
         try {
-            $model = Product::find($request->id);
+            $model = Booking::find($request->id);
             if (!$model) {
-                return redirect()->back()->with('error', 'Product not found');
+                return redirect()->back()->with('error', 'Booking not found');
             }
             $all_images = null;
 
@@ -177,9 +178,9 @@ class BookingController extends Controller
             $model->fill($request->all());
             $model->image = $all_images;
             if ($model->save()) {
-                return redirect()->back()->with('success', 'Product updated successfully!');
+                return redirect()->back()->with('success', 'Booking updated successfully!');
             } else {
-                return redirect()->back()->with('error', 'Product not updated');
+                return redirect()->back()->with('error', 'Booking not updated');
             }
         } catch (\Exception $e) {
             $bug = $e->getMessage();
@@ -195,9 +196,9 @@ class BookingController extends Controller
     public function getList(Request $request, $id = null)
     {
         if (User::isUser()) {
-            $query = Product::my()->orderBy('id', 'desc');
+            $query = Booking::my()->orderBy('id', 'desc');
         } else {
-            $query = Product::orderBy('id', 'desc');
+            $query = Booking::orderBy('id', 'desc');
         }
 
         if (!empty($id))
@@ -232,7 +233,7 @@ class BookingController extends Controller
                 return (empty($data->created_at)) ? 'N/A' : date('Y-m-d', strtotime($data->created_at));
             })
             ->addColumn('status', function ($data) {
-                $select = '<select class="form-select state-change"  data-id="' . $data->id . '" data-modeltype="' . Product::class . '" aria-label="Default select example">';
+                $select = '<select class="form-select state-change"  data-id="' . $data->id . '" data-modeltype="' . Booking::class . '" aria-label="Default select example">';
                 foreach ($data->getStateOptions() as $key => $option) {
                     $select .= '<option value="' . $key . '"' . ($data->state_id == $key ? ' selected' : '') . '>' . $option . '</option>';
                 }
@@ -334,15 +335,15 @@ class BookingController extends Controller
             }
 
             // Create a new product model
-            $model = new Product();
+            $model = new Booking();
             $model->fill($request->all());
-            $model->state_id = Product::STATE_ACTIVE;
+            $model->state_id = Booking::STATE_ACTIVE;
             $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
             $model->created_by_id = Auth::user()->id;
 
             // Save the model
             if ($model->save()) {
-                return redirect('/product')->with('success', 'Product created successfully!');
+                return redirect('/product')->with('success', 'Booking created successfully!');
             } else {
                 return redirect('/product/create')->with('error', 'Unable to save the Product!');
             }
@@ -357,12 +358,12 @@ class BookingController extends Controller
     public function stateChange($id, $state)
     {
         try {
-            $model = Product::find($id);
+            $model = Booking::find($id);
             if ($model) {
                 $update = $model->update([
                     'state_id' => $state,
                 ]);
-                return redirect()->back()->with('success', 'Product has been ' . (($model->getState() != "New") ? $model->getState() . 'd!' : $model->getState()));
+                return redirect()->back()->with('success', 'Booking has been ' . (($model->getState() != "New") ? $model->getState() . 'd!' : $model->getState()));
             } else {
                 return redirect('404');
             }
@@ -375,10 +376,10 @@ class BookingController extends Controller
     public function finalDelete($id)
     {
         try {
-            $model = Product::find($id);
+            $model = Booking::find($id);
             if ($model) {
                 $model->delete();
-                return redirect('support')->with('success', 'Product has been deleted successfully!');
+                return redirect('support')->with('success', 'Booking has been deleted successfully!');
             } else {
                 return redirect('404');
             }

@@ -1,4 +1,5 @@
 @extends('layouts.master')
+@section('title', $model->table_number)
 @section('content')
     <x-a-breadcrumb :columns="[
         [

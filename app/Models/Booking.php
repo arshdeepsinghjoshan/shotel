@@ -27,7 +27,7 @@ class Booking extends Model
 
     public function cart()
     {
-        return $this->hasOne(Cart::class, 'product_id');
+        return $this->hasOne(Cart::class, 'booking_id');
     }
     public static function getStateOptions()
     {
@@ -145,14 +145,14 @@ class Booking extends Model
                     'label' => 'fa fa-step-backward',
                     'color' => 'btn btn-primary',
                     'title' => __('Manage'),
-                    'url' => url('product'),
+                    'url' => url('booking'),
 
                 ];
                 $menu['update'] = [
                     'label' => 'fa fa-edit',
                     'color' => 'btn btn-primary',
                     'title' => __('Update'),
-                    'url' => url('product/edit/' . $model->id),
+                    'url' => url('booking/edit/' . $model->id),
 
                 ];
                 break;
@@ -161,14 +161,14 @@ class Booking extends Model
                     'label' => 'fa fa-plus',
                     'color' => 'btn btn-primary',
                     'title' => __('Add'),
-                    'url' => url('product/create'),
+                    'url' => url('booking/create'),
                     'visible' => User::isAdmin()
                 ];
                 $menu['import'] = [
                     'label' => 'fas fa-file-import',
                     'color' => 'btn btn-primary',
                     'title' => __('File Import'),
-                    'url' => url('product/import'),
+                    'url' => url('booking/import'),
                     'visible' => false
                 ];
         }
