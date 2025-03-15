@@ -228,7 +228,6 @@ class RoomController extends Controller
                 return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
             })
 
-
             ->addColumn('type', function ($data) {
                 return  $data->getType();
             })
@@ -285,13 +284,22 @@ class RoomController extends Controller
                     $query->where(function ($q) use ($searchTerms) {
                         foreach ($searchTerms as $term) {
                             $q->where('id', 'like', "%$term%")
-                                ->orWhere('name', 'like', "%$term%")
+                                ->orWhere('room_number', 'like', "%$term%")
+                                ->orWhere('note', 'like', "%$term%")
+                                ->orWhere('capacity', 'like', "%$term%")
                                 ->orWhere('price', 'like', "%$term%")
-                                ->orWhere('quantity_in_stock', 'like', "%$term%")
-                                ->orWhere('remaining_quantity', 'like', "%$term%")
                                 ->orWhere('created_at', 'like', "%$term%")
                                 ->orWhere(function ($query) use ($term) {
                                     $query->searchState($term);
+                                })
+                                ->orWhere(function ($query) use ($term) {
+                                    $query->searchType($term);
+                                })
+                                ->orWhere(function ($query) use ($term) {
+                                    $query->searchMeal($term);
+                                })
+                                ->orWhere(function ($query) use ($term) {
+                                    $query->searchACType($term);
                                 })
                                 ->orWhereHas('createdBy', function ($query) use ($term) {
                                     $query->where('name', 'like', "%$term%");

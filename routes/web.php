@@ -14,6 +14,7 @@ use App\Http\Controllers\SubscribedPlanController;
 use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\SupportDepartmentController;
+use App\Http\Controllers\TableController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WalletTransactionController;
@@ -199,6 +200,16 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::post('room/update', [RoomController::class, 'update'])->name('room.update');
         Route::post('room/add', [RoomController::class, 'add'])->name('room.add');
         Route::get('/room/edit/{id}', [RoomController::class, 'edit']);
+
+
+        Route::post('table/store', [TableController::class, 'store']);
+        Route::get('table', [TableController::class, 'index']);
+        Route::get('table/create', [TableController::class, 'create']);
+        Route::get('/table/get-list', [TableController::class, 'getList']);
+        Route::get('/table/view/{id}', [TableController::class, 'view']);
+        Route::post('table/update', [TableController::class, 'update'])->name('table.update');
+        Route::post('table/add', [TableController::class, 'add'])->name('table.add');
+        Route::get('/table/edit/{id}', [TableController::class, 'edit']);
 
     });
 });

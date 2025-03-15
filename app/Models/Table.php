@@ -145,14 +145,14 @@ class Table extends Model
                     'label' => 'fa fa-step-backward',
                     'color' => 'btn btn-primary',
                     'title' => __('Manage'),
-                    'url' => url('product'),
+                    'url' => url('table'),
 
                 ];
                 $menu['update'] = [
                     'label' => 'fa fa-edit',
                     'color' => 'btn btn-primary',
                     'title' => __('Update'),
-                    'url' => url('product/edit/' . $model->id),
+                    'url' => url('table/edit/' . $model->id),
 
                 ];
                 break;
@@ -161,14 +161,14 @@ class Table extends Model
                     'label' => 'fa fa-plus',
                     'color' => 'btn btn-primary',
                     'title' => __('Add'),
-                    'url' => url('product/create'),
+                    'url' => url('table/create'),
                     'visible' => User::isAdmin()
                 ];
                 $menu['import'] = [
                     'label' => 'fas fa-file-import',
                     'color' => 'btn btn-primary',
                     'title' => __('File Import'),
-                    'url' => url('product/import'),
+                    'url' => url('table/import'),
                     'visible' => false
                 ];
         }

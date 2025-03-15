@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Department;
 use App\Models\Product;
+use App\Models\Table;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -19,8 +20,8 @@ class TableController extends Controller
     public function index()
     {
         try {
-            $model = new Product();
-            return view('product.index', compact('model'));
+            $model = new Table();
+            return view('table.index', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
@@ -84,14 +85,14 @@ class TableController extends Controller
                 }
 
                 // Insert into database
-                Product::insert($productsToInsert);
+                Table::insert($productsToInsert);
 
                 return redirect()->back()->with('success', 'File imported successfully! Products added: ' . count($productsToInsert));
             }
 
             // For GET request
-            $model = new Product();
-            return view('product.import', compact('model'));
+            $model = new Table();
+            return view('table.import', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
@@ -102,10 +103,10 @@ class TableController extends Controller
     {
         try {
             $id = $request->id;
-            $model  = Product::find($id);
+            $model  = Table::find($id);
             if ($model) {
 
-                return view('product.update', compact('model'));
+                return view('table.update', compact('model'));
             } else {
                 return redirect()->back()->with('error', 'Product not found');
             }
@@ -120,10 +121,10 @@ class TableController extends Controller
     {
         try {
 
-            $model  = new Product();
+            $model  = new Table();
             if ($model) {
 
-                return view('product.add', compact('model'));
+                return view('table.add', compact('model'));
             } else {
                 return redirect('404');
             }
@@ -135,27 +136,27 @@ class TableController extends Controller
     {
         try {
             $id = $request->id;
-            $model  = Product::find($id);
+            $model  = Table::find($id);
             if ($model) {
 
-                return view('product.view', compact('model'));
+                return view('table.view', compact('model'));
             } else {
-                return redirect('/product')->with('error', 'Product not found');
+                return redirect('/table')->with('error', 'Product not found');
             }
         } catch (\Exception $e) {
-            return redirect('/product')->with('error', 'An error occurred: ' . $e->getMessage());
+            return redirect('/table')->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 
 
     public function update(Request $request)
     {
-        if ($this->validator($request->all())->fails()) {
-            $message = $this->validator($request->all())->messages()->first();
+        if ($this->validator($request->all(), $request->id)->fails()) {
+            $message = $this->validator($request->all(), $request->id)->messages()->first();
             return redirect()->back()->withInput()->with('error', $message);
         }
         try {
-            $model = Product::find($request->id);
+            $model = Table::find($request->id);
             if (!$model) {
                 return redirect()->back()->with('error', 'Product not found');
             }
@@ -195,9 +196,9 @@ class TableController extends Controller
     public function getList(Request $request, $id = null)
     {
         if (User::isUser()) {
-            $query = Product::my()->orderBy('id', 'desc');
+            $query = Table::my()->orderBy('id', 'desc');
         } else {
-            $query = Product::orderBy('id', 'desc');
+            $query = Table::orderBy('id', 'desc');
         }
 
         if (!empty($id))
@@ -217,12 +218,7 @@ class TableController extends Controller
             ->addColumn('created_by', function ($data) {
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
             })
-            ->addColumn('title', function ($data) {
-                return !empty($data->title) ? (strlen($data->title) > 60 ? substr(ucfirst($data->title), 0, 60) . '...' : ucfirst($data->title)) : 'N/A';
-            })
-            ->addColumn('price', function ($data) {
-                return number_format($data->price, 2);
-            })
+
             ->addColumn('status', function ($data) {
                 return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
             })
@@ -232,7 +228,7 @@ class TableController extends Controller
                 return (empty($data->created_at)) ? 'N/A' : date('Y-m-d', strtotime($data->created_at));
             })
             ->addColumn('status', function ($data) {
-                $select = '<select class="form-select state-change"  data-id="' . $data->id . '" data-modeltype="' . Product::class . '" aria-label="Default select example">';
+                $select = '<select class="form-select state-change"  data-id="' . $data->id . '" data-modeltype="' . Table::class . '" aria-label="Default select example">';
                 foreach ($data->getStateOptions() as $key => $option) {
                     $select .= '<option value="' . $key . '"' . ($data->state_id == $key ? ' selected' : '') . '>' . $option . '</option>';
                 }
@@ -242,9 +238,9 @@ class TableController extends Controller
 
             ->addColumn('action', function ($data) {
                 $html = '<div class="table-actions text-center">';
-                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('product/view/' . $data->id) . '"  ><i class="fa fa-eye
+                $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('table/view/' . $data->id) . '"  ><i class="fa fa-eye
                 "data-toggle="tooltip"  title="View"></i></a>';
-                $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('product/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
+                $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('table/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
                 $html .=  '</div>';
                 return $html;
             })->addColumn('customerClickAble', function ($data) {
@@ -268,10 +264,8 @@ class TableController extends Controller
                     $query->where(function ($q) use ($searchTerms) {
                         foreach ($searchTerms as $term) {
                             $q->where('id', 'like', "%$term%")
-                                ->orWhere('name', 'like', "%$term%")
-                                ->orWhere('price', 'like', "%$term%")
-                                ->orWhere('quantity_in_stock', 'like', "%$term%")
-                                ->orWhere('remaining_quantity', 'like', "%$term%")
+                                ->orWhere('table_number', 'like', "%$term%")
+                                ->orWhere('seats', 'like', "%$term%")
                                 ->orWhere('created_at', 'like', "%$term%")
                                 ->orWhere(function ($query) use ($term) {
                                     $query->searchState($term);
@@ -286,25 +280,14 @@ class TableController extends Controller
             ->make(true);
     }
 
-
-
-
-
-
-
-
-
-
-
     protected static function validator(array $data, $id = null)
     {
         return Validator::make(
             $data,
             [
-                'name' => 'required|string|max:255',
-                'price' => 'required',
-                'description' => 'string|max:255',
-                'remaining_quantity' => ['integer', 'max:' . $data['quantity_in_stock']],
+                'table_number' => 'required|string|max:50|unique:tables,table_number,' . $id,
+                'seats' => ['required', 'integer', 'min:1', 'max:10'],
+
             ]
         );
     }
@@ -317,7 +300,6 @@ class TableController extends Controller
                 $message = $this->validator($request->all())->messages()->first();
                 return redirect()->back()->withInput()->with('error', $message);
             }
-
             // Initialize the images array
             $all_images = [];
             $ticket_images = $request->file('images');
@@ -333,18 +315,17 @@ class TableController extends Controller
                 }
             }
 
-            // Create a new product model
-            $model = new Product();
+            // Create a new table model
+            $model = new Table();
             $model->fill($request->all());
-            $model->state_id = Product::STATE_ACTIVE;
             $model->images = !empty($all_images) ? json_encode($all_images) : null;  // Ensure it's a JSON string
             $model->created_by_id = Auth::user()->id;
 
             // Save the model
             if ($model->save()) {
-                return redirect('/product')->with('success', 'Product created successfully!');
+                return redirect('/table')->with('success', 'Table created successfully!');
             } else {
-                return redirect('/product/create')->with('error', 'Unable to save the Product!');
+                return redirect('/table/create')->with('error', 'Unable to save the Table!');
             }
         } catch (\Exception $e) {
             $bug = $e->getMessage();
@@ -357,12 +338,12 @@ class TableController extends Controller
     public function stateChange($id, $state)
     {
         try {
-            $model = Product::find($id);
+            $model = Table::find($id);
             if ($model) {
                 $update = $model->update([
                     'state_id' => $state,
                 ]);
-                return redirect()->back()->with('success', 'Product has been ' . (($model->getState() != "New") ? $model->getState() . 'd!' : $model->getState()));
+                return redirect()->back()->with('success', 'Table has been ' . (($model->getState() != "New") ? $model->getState() . 'd!' : $model->getState()));
             } else {
                 return redirect('404');
             }
@@ -375,10 +356,10 @@ class TableController extends Controller
     public function finalDelete($id)
     {
         try {
-            $model = Product::find($id);
+            $model = Table::find($id);
             if ($model) {
                 $model->delete();
-                return redirect('support')->with('success', 'Product has been deleted successfully!');
+                return redirect('support')->with('success', 'Table has been deleted successfully!');
             } else {
                 return redirect('404');
             }

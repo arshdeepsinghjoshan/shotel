@@ -10,13 +10,13 @@
             'label' => 'Home',
         ],
         [
-            'url' => 'room',
-            'label' => 'Rooms',
+            'url' => 'table',
+            'label' => 'Tables',
         ],
-        !empty($model->room_number)
-            ? (strlen($model->room_number) > 100
-                ? substr($model->room_number, 0, 100) . '...'
-                : $model->room_number)
+        !empty($model->table_number)
+            ? (strlen($model->table_number) > 100
+                ? substr($model->table_number, 0, 100) . '...'
+                : $model->table_number)
             : 'N/A',
     ]" />
 
@@ -25,33 +25,15 @@
             <div class="col-lg-12 mb-4 order-0">
                 <div class="card">
                     <div class="card-body">
-                        <h5>{{ !empty($model->room_number) ? (strlen($model->room_number) > 100 ? substr($model->room_number, 0, 100) . '...' : $model->room_number) : 'N/A' }}
+                        <h5>{{ !empty($model->table_number) ? (strlen($model->table_number) > 100 ? substr($model->table_number, 0, 100) . '...' : $model->table_number) : 'N/A' }}
                             <span class="{{ $model->getStateBadgeOption() }}">{{ $model->getState() }}</span>
                         </h5>
 
                         <x-a-detail-view :model="$model" :type="'single'" :column="[
                             'id',
-                            'room_number',
-                            'price',
-                            'capacity',
-                            'note',
-                            [
-                                'attribute' => 'type_id',
-                                'label' => 'Room Type',
-                                'value' => $model->getType(),
-                            ],
-
-                              [
-                                'attribute' => 'ac_type',
-                                'value' => $model->getAcType(),
-                            ],
-
-
-                              [
-                                'attribute' => 'meal_type',
-                                'value' => $model->getMealType(),
-                            ],
-
+                            'table_number',
+                            'seats',
+                        
                             [
                                 'attribute' => 'created_at',
                                 'label' => 'Created at',

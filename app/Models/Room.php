@@ -235,6 +235,45 @@ class Room extends Model
 
 
 
+    public function scopeSearchType($query, $search)
+    {
+        $typeOptions = self::getTypeOptions();
+        return $query->where(function ($query) use ($search, $typeOptions) {
+            foreach ($typeOptions as $typeId => $typeName) {
+                if (stripos($typeName, $search) !== false) {
+                    $query->orWhere('type_id', $typeId);
+                }
+            }
+        });
+    }
+
+
+    public function scopeSearchMeal($query, $search)
+    {
+        $mealOptions = self::getMealTypeOptions();
+        return $query->where(function ($query) use ($search, $mealOptions) {
+            foreach ($mealOptions as $mealId => $mealName) {
+                if (stripos($mealName, $search) !== false) {
+                    $query->orWhere('meal_type', $mealId);
+                }
+            }
+        });
+    }
+
+
+    public function scopeSearchACType($query, $search)
+    {
+        $acTypeOptions = self::getAcTypeOptions();
+        return $query->where(function ($query) use ($search, $acTypeOptions) {
+            foreach ($acTypeOptions as $acTypeId => $acTypeName) {
+                if (stripos($acTypeName, $search) !== false) {
+                    $query->orWhere('ac_type', $acTypeId);
+                }
+            }
+        });
+    }
+
+
 
     public function scopeSearchPriority($query, $search)
     {
