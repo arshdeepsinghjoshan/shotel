@@ -14,9 +14,6 @@ class Table extends Model
 
     const STATE_ACTIVE = 1;
 
-    const TYPE_GRIND = 0;
-
-    const TYPE_PRODUCT = 1;
 
     const STATE_DELETE = 2;
 
@@ -39,31 +36,6 @@ class Table extends Model
     }
 
 
-    /**
-     * Automatically update remaining_quantity when quantity_in_stock changes
-     */
-    public function setQuantityInStockAttribute($value)
-    {
-        // If it's a new record, set remaining_quantity equal to quantity_in_stock
-        
-            $this->attributes['remaining_quantity'] = $value;
-        
-        
-        // Set quantity_in_stock
-        $this->attributes['quantity_in_stock'] = $value;
-    }
-    public static function getTypeOptions()
-    {
-        return [
-            self::TYPE_GRIND => "Grind",
-            self::TYPE_PRODUCT => "Product",
-        ];
-    }
-    public function getType()
-    {
-        $list = self::getTypeOptions();
-        return isset($list[$this->type_id]) ? $list[$this->type_id] : 'Not Defined';
-    }
     public static function getStateOptionsBadge($stateValue)
     {
         $list = [
@@ -97,24 +69,6 @@ class Table extends Model
             self::STATE_DELETE => "danger",
         ];
         return isset($list[$this->state_id]) ? 'badge bg-' . $list[$this->state_id] : 'Not Defined';
-    }
-    const PRIORITY_LOW = 0;
-    const PRIORITY_MEDIUM = 1;
-    const PRIORITY_HIGH = 2;
-
-    public static function getPriorityOptions()
-    {
-        return [
-            self::PRIORITY_LOW => "Low",
-            self::PRIORITY_MEDIUM => "Medium",
-            self::PRIORITY_HIGH => "High",
-        ];
-    }
-
-    public function getPriority()
-    {
-        $list = self::getPriorityOptions();
-        return isset($list[$this->priority_id]) ? $list[$this->priority_id] : 'Not Defined';
     }
 
 
@@ -184,21 +138,6 @@ class Table extends Model
             foreach ($stateOptions as $stateId => $stateName) {
                 if (stripos($stateName, $search) !== false) {
                     $query->orWhere('state_id', $stateId);
-                }
-            }
-        });
-    }
-
-
-
-
-    public function scopeSearchPriority($query, $search)
-    {
-        $stateOptions = self::getPriorityOptions();
-        return $query->where(function ($query) use ($search, $stateOptions) {
-            foreach ($stateOptions as $stateId => $stateName) {
-                if (stripos($stateName, $search) !== false) {
-                    $query->orWhere('priority_id', $stateId);
                 }
             }
         });

@@ -142,31 +142,7 @@ class Room extends Model
         ];
         return isset($list[$this->state_id]) ? 'badge bg-' . $list[$this->state_id] : 'Not Defined';
     }
-    const PRIORITY_LOW = 0;
-    const PRIORITY_MEDIUM = 1;
-    const PRIORITY_HIGH = 2;
-
-    public static function getPriorityOptions()
-    {
-        return [
-            self::PRIORITY_LOW => "Low",
-            self::PRIORITY_MEDIUM => "Medium",
-            self::PRIORITY_HIGH => "High",
-        ];
-    }
-
-    public function getPriority()
-    {
-        $list = self::getPriorityOptions();
-        return isset($list[$this->priority_id]) ? $list[$this->priority_id] : 'Not Defined';
-    }
-
-
-    public function getCategoryOption()
-    {
-        return ProductCategory::where('state_id', ProductCategory::STATE_OPEN)->get();
-    }
-
+   
 
     public function createdBy()
     {

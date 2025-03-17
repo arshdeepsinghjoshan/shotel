@@ -9,6 +9,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SubscribedPlanController;
@@ -221,5 +222,16 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::post('booking/update', [BookingController::class, 'update'])->name('booking.update');
         Route::post('booking/add', [BookingController::class, 'add'])->name('booking.add');
         Route::get('/booking/edit/{id}', [BookingController::class, 'edit']);
+
+
+
+        Route::post('reservation/store', [ReservationController::class, 'store']);
+        Route::get('reservation', [ReservationController::class, 'index']);
+        Route::get('reservation/create', [ReservationController::class, 'create']);
+        Route::get('/reservation/get-list', [ReservationController::class, 'getList']);
+        Route::get('/reservation/view/{id}', [ReservationController::class, 'view']);
+        Route::post('reservation/update', [ReservationController::class, 'update'])->name('reservation.update');
+        Route::post('reservation/add', [ReservationController::class, 'add'])->name('reservation.add');
+        Route::get('/reservation/edit/{id}', [ReservationController::class, 'edit']);
     });
 });

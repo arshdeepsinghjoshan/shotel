@@ -10,15 +10,19 @@ class Reservation extends Model
 {
     use HasFactory;
 
-    const STATE_INACTIVE = 0;
+    const STATUS_PENDING = 0;
 
-    const STATE_ACTIVE = 1;
+    const STATUS_CONFIRMED = 1;
+
+    const STATUS_COMPLETED = 2;
+
+    const STATUS_CANCELED = 3;
+
 
     const TYPE_GRIND = 0;
 
     const TYPE_PRODUCT = 1;
 
-    const STATE_DELETE = 2;
 
 
     use AActiveRecord;
@@ -32,44 +36,41 @@ class Reservation extends Model
     public static function getStateOptions()
     {
         return [
-            self::STATE_INACTIVE => "Inactive",
-            self::STATE_ACTIVE => "Active",
-            self::STATE_DELETE => "Delete",
+            self::STATUS_PENDING => 'Pending',
+            self::STATUS_CONFIRMED => 'Confirmed',
+            self::STATUS_COMPLETED => 'Completed',
+            self::STATUS_CANCELED => 'Canceled',
         ];
+    }
+    public static function isTableAvailable($table_id, $reservation_time, $exclude_booking_id = null)
+    {
+        return !self::where('table_id', $table_id)
+            ->where('reservation_time', $reservation_time)
+            ->whereNotIn('state_id', [self::STATUS_CANCELED, self::STATUS_COMPLETED])
+            ->when($exclude_booking_id, function ($query) use ($exclude_booking_id) {
+                $query->where('id', '!=', $exclude_booking_id);
+            })
+            ->exists();
     }
 
 
-    /**
-     * Automatically update remaining_quantity when quantity_in_stock changes
-     */
-    public function setQuantityInStockAttribute($value)
+    public function user()
     {
-        // If it's a new record, set remaining_quantity equal to quantity_in_stock
-        
-            $this->attributes['remaining_quantity'] = $value;
-        
-        
-        // Set quantity_in_stock
-        $this->attributes['quantity_in_stock'] = $value;
+        return $this->belongsTo(User::class, 'user_id');
     }
-    public static function getTypeOptions()
+
+    public function table()
     {
-        return [
-            self::TYPE_GRIND => "Grind",
-            self::TYPE_PRODUCT => "Product",
-        ];
+        return $this->belongsTo(Table::class, 'table_id');
     }
-    public function getType()
-    {
-        $list = self::getTypeOptions();
-        return isset($list[$this->type_id]) ? $list[$this->type_id] : 'Not Defined';
-    }
+
     public static function getStateOptionsBadge($stateValue)
     {
         $list = [
-            self::STATE_ACTIVE => "success",
-            self::STATE_INACTIVE => "secondary",
-            self::STATE_DELETE => "danger",
+            self::STATUS_PENDING => 'secondary',
+            self::STATUS_CONFIRMED => 'success',
+            self::STATUS_COMPLETED => 'success',
+            self::STATUS_CANCELED => 'danger',
 
         ];
         return isset($stateValue) ? $list[$stateValue] : 'Not Defined';
@@ -77,9 +78,10 @@ class Reservation extends Model
     public function getStateButtonOption($state_id = null)
     {
         $list = [
-            self::STATE_ACTIVE => "success",
-            self::STATE_INACTIVE => "secondary",
-            self::STATE_DELETE => "danger",
+            self::STATUS_PENDING => 'secondary',
+            self::STATUS_CONFIRMED => 'success',
+            self::STATUS_COMPLETED => 'success',
+            self::STATUS_CANCELED => 'danger',
 
         ];
         return isset($list[$state_id]) ? 'btn btn-' . $list[$state_id] : 'Not Defined';
@@ -92,29 +94,12 @@ class Reservation extends Model
     public function getStateBadgeOption()
     {
         $list = [
-            self::STATE_ACTIVE => "success",
-            self::STATE_INACTIVE => "secondary",
-            self::STATE_DELETE => "danger",
+            self::STATUS_PENDING => 'secondary',
+            self::STATUS_CONFIRMED => 'success',
+            self::STATUS_COMPLETED => 'success',
+            self::STATUS_CANCELED => 'danger',
         ];
         return isset($list[$this->state_id]) ? 'badge bg-' . $list[$this->state_id] : 'Not Defined';
-    }
-    const PRIORITY_LOW = 0;
-    const PRIORITY_MEDIUM = 1;
-    const PRIORITY_HIGH = 2;
-
-    public static function getPriorityOptions()
-    {
-        return [
-            self::PRIORITY_LOW => "Low",
-            self::PRIORITY_MEDIUM => "Medium",
-            self::PRIORITY_HIGH => "High",
-        ];
-    }
-
-    public function getPriority()
-    {
-        $list = self::getPriorityOptions();
-        return isset($list[$this->priority_id]) ? $list[$this->priority_id] : 'Not Defined';
     }
 
 
@@ -135,6 +120,16 @@ class Reservation extends Model
     }
 
 
+    public function getUserOption()
+    {
+        return User::where('state_id', User::STATE_ACTIVE)->get();
+    }
+
+    public function getTableOption()
+    {
+        return Table::where('state_id', Table::STATE_ACTIVE)->get();
+    }
+
 
     public function updateMenuItems($action, $model = null)
     {
@@ -145,14 +140,14 @@ class Reservation extends Model
                     'label' => 'fa fa-step-backward',
                     'color' => 'btn btn-primary',
                     'title' => __('Manage'),
-                    'url' => url('product'),
+                    'url' => url('reservation'),
 
                 ];
                 $menu['update'] = [
                     'label' => 'fa fa-edit',
                     'color' => 'btn btn-primary',
                     'title' => __('Update'),
-                    'url' => url('product/edit/' . $model->id),
+                    'url' => url('reservation/edit/' . $model->id),
 
                 ];
                 break;
@@ -161,14 +156,14 @@ class Reservation extends Model
                     'label' => 'fa fa-plus',
                     'color' => 'btn btn-primary',
                     'title' => __('Add'),
-                    'url' => url('product/create'),
+                    'url' => url('reservation/create'),
                     'visible' => User::isAdmin()
                 ];
                 $menu['import'] = [
                     'label' => 'fas fa-file-import',
                     'color' => 'btn btn-primary',
                     'title' => __('File Import'),
-                    'url' => url('product/import'),
+                    'url' => url('reservation/import'),
                     'visible' => false
                 ];
         }
@@ -184,21 +179,6 @@ class Reservation extends Model
             foreach ($stateOptions as $stateId => $stateName) {
                 if (stripos($stateName, $search) !== false) {
                     $query->orWhere('state_id', $stateId);
-                }
-            }
-        });
-    }
-
-
-
-
-    public function scopeSearchPriority($query, $search)
-    {
-        $stateOptions = self::getPriorityOptions();
-        return $query->where(function ($query) use ($search, $stateOptions) {
-            foreach ($stateOptions as $stateId => $stateName) {
-                if (stripos($stateName, $search) !== false) {
-                    $query->orWhere('priority_id', $stateId);
                 }
             }
         });
