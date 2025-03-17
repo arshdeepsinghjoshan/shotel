@@ -37,7 +37,7 @@ use App\Models\User;
                         <div class="col-md-3 col-lg-2">
                             <div class="admin-blog-image mt-5">
 
-                                <img src="{{ asset($model->profile_image ? '/uploads/' . $model->profile_image : '/assets/img/avatars/1.png') }}" alt="Profile" class="grid-image">
+                                <img src="{{ asset($model->profile_image ? '/uploads/' . $model->profile_image : '/assets/img/avatars/8.png') }}" alt="Profile" class="grid-image">
 
                             </div>
                         </div>
@@ -119,8 +119,14 @@ use App\Models\User;
                         </button>
                     </li>
                     <li class="nav-item">
-                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-wallet-history" aria-controls="navs-justified-messages" aria-selected="false">
-                            <i class="tf-icons bx bx-message-square"></i> Wallet Transaction
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-booking" aria-controls="navs-justified-messages" aria-selected="false">
+                            <i class="tf-icons bx bx-message-square"></i> Booking
+                        </button>
+                    </li>
+
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-reservation" aria-controls="navs-justified-messages" aria-selected="false">
+                            <i class="tf-icons bx bx-message-square"></i> Reservations
                         </button>
                     </li>
                 </ul>
@@ -148,20 +154,18 @@ use App\Models\User;
                         </div>
                     </div>
 
-
-                    <div class="tab-pane fade" id="navs-justified-wallet-history" role="tabpanel">
+                    <div class="tab-pane fade" id="navs-justified-booking" role="tabpanel">
                         <div class="table-responsive">
-                            <x-a-relation-grid :id="'wallet_transaction_table'" :relation="'transactions'" :model="$model" :columns="[
-                                        'id',
-                                        'wallet_number',
-                                        'amount',
-                                        'type_id',
-                                        'transaction_type',
-                                        'status',
-                                        'created_at',
-                                        'created_by',
-                                        'action',
-                                    ]" />
+                            <x-a-relation-grid :id="'booking_table'" :relation="'bookings'" :model="$model" :columns="['id','user','room', 'check_in', 'check_out','total_price','is_paid', 'status', 'action']" />
+
+                        </div>
+
+
+                    </div>
+
+                    <div class="tab-pane fade" id="navs-justified-reservation" role="tabpanel">
+                        <div class="table-responsive">
+                            <x-a-relation-grid :id="'reservation_table'" :relation="'reservations'" :model="$model" :columns="['id','user','table', 'reservation_time','status', 'action']" />
 
                         </div>
 

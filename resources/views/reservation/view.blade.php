@@ -38,8 +38,8 @@ use App\Models\User;
                             ],
                             [
                                 'label' => 'Table Number',
-                                'value' => !empty($model->table && $model->table->table_number)
-                                    ? $model->table->table_number
+                                'value' => !empty($model->tableBelongTo && $model->tableBelongTo->table_number)
+                                    ? $model->tableBelongTo->table_number
                                     : 'N/A',
                             ],
                         

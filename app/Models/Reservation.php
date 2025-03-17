@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Traits\AActiveRecord;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use DataTables;
+
 
 class Reservation extends Model
 {
@@ -59,7 +61,7 @@ class Reservation extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function table()
+    public function tableBelongTo()
     {
         return $this->belongsTo(Table::class, 'table_id');
     }
@@ -125,10 +127,10 @@ class Reservation extends Model
         return User::where('state_id', User::STATE_ACTIVE)->get();
     }
 
-    public function getTableOption()
-    {
-        return Table::where('state_id', Table::STATE_ACTIVE)->get();
-    }
+    // public function getTableOption()
+    // {
+    //     return Table::where('state_id', Table::STATE_ACTIVE)->get();
+    // }
 
 
     public function updateMenuItems($action, $model = null)
@@ -182,5 +184,79 @@ class Reservation extends Model
                 }
             }
         });
+    }
+
+    
+
+    public function relationGridView($queryRelation, $request)
+    {
+        $dataTable = Datatables::of($queryRelation)
+        ->addColumn('created_by', function ($data) {
+            return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
+        })
+        ->addColumn('user', function ($data) {
+       
+
+            return !empty($data->user && $data->user->name) ? $data->user->name : 'N/A';
+        })
+
+        ->addColumn('table', function ($data) {
+            return !empty($data->tableBelongTo && $data->tableBelongTo->table_number) ? $data->tableBelongTo->table_number : 'N/A';
+        })
+        ->addColumn('status', function ($data) {
+            return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
+        })
+        ->rawColumns(['created_by'])
+        ->addColumn('reservation_time', function ($data) {
+            return (empty($data->reservation_time)) ? 'N/A' : date('Y-m-d  h:i:s A', strtotime($data->reservation_time));
+        })
+        ->addColumn('created_at', function ($data) {
+            return (empty($data->created_at)) ? 'N/A' : date('Y-m-d', strtotime($data->created_at));
+        })
+        ->addColumn('status', function ($data) {
+            $select = '<select class="form-select state-change"  data-id="' . $data->id . '" data-modeltype="' . Reservation::class . '" aria-label="Default select example">';
+            foreach ($data->getStateOptions() as $key => $option) {
+                $select .= '<option value="' . $key . '"' . ($data->state_id == $key ? ' selected' : '') . '>' . $option . '</option>';
+            }
+            $select .= '</select>';
+            return $select;
+        })
+
+        ->addColumn('action', function ($data) {
+            $html = '<div class="table-actions text-center">';
+            $html .=    '  <a class="btn btn-icon btn-primary mt-1" href="' . url('reservation/view/' . $data->id) . '"  ><i class="fa fa-eye
+            "data-toggle="tooltip"  title="View"></i></a>';
+            $html .= ' <a class="btn btn-icon btn-primary mt-1" href="' . url('reservation/edit/' . $data->id) . '" ><i class="fa fa-edit"></i></a>';
+            $html .=  '</div>';
+            return $html;
+        })
+        ->rawColumns([
+            'action',
+            'created_at',
+            'status'
+        ]);
+        if (!($queryRelation instanceof \Illuminate\Database\Query\Builder)) {
+            $searchValue = $request->input('search.value');
+            if ($searchValue) {
+                $searchTerms = explode(' ', $searchValue);
+                $collection = $queryRelation->filter(function ($item) use ($searchTerms) {
+                    foreach ($searchTerms as $term) {
+                        if (
+                            strpos($item->id, $term) !== false ||
+                            strpos($item->name, $term) !== false ||
+                            strpos($item->email, $term) !== false ||
+                            strpos($item->created_at, $term) !== false ||
+                            (isset($item->createdBy) && strpos($item->createdBy->name, $term) !== false) ||
+                            $item->searchState($term)
+                        ) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+        }
+
+        return $dataTable->make(true);
     }
 }

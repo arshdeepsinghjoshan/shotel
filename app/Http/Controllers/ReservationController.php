@@ -118,7 +118,7 @@ class ReservationController extends Controller
 
     public function getList(Request $request, $id = null)
     {
-        $query = Reservation::with(['user', 'table'])->orderBy('id', 'desc');
+        $query = Reservation::with(['user', 'tableBelongTo'])->orderBy('id', 'desc');
         if (!empty($id))
             $query->where('id', $id);
 
@@ -137,7 +137,7 @@ class ReservationController extends Controller
             })
 
             ->addColumn('table', function ($data) {
-                return !empty($data->table && $data->table->table_number) ? $data->table->table_number : 'N/A';
+                return !empty($data->tableBelongTo && $data->tableBelongTo->table_number) ? $data->tableBelongTo->table_number : 'N/A';
             })
             ->addColumn('status', function ($data) {
                 return '<span class="' . $data->getStateBadgeOption() . '">' . $data->getState() . '</span>';
