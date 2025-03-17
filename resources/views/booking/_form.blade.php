@@ -8,17 +8,17 @@
                 <label class="pt-2 fw-bold" for="btncheck1"> Customer </label>
                 <select name="user_id" class="validate form-control" id="user_id">
                     <option value="">Select Customer</option>
-
                     @foreach ($model->getUserOption() as $user)
-                        <option value="{{ $user->id }}"
-                            {{ $user->id == $model->user_id ? 'selected' : '' }}>{{ $user->name }}
-                        </option>
+                    <option value="{{ $user->id }}"
+                        {{ old('user_id', $model->user_id) == $user->id ? 'selected' : '' }}>
+                        {{ $user->name }}
+                    </option>
                     @endforeach
-
                 </select>
+
             </div>
             @error('user_id')
-                <p style="color:red;">{{ $errors->first('user_id') }}</p>
+            <p style="color:red;">{{ $errors->first('user_id') }}</p>
             @enderror
         </div>
 
@@ -28,15 +28,16 @@
                 <select name="room_id" class="validate form-control" id="room_id">
                     <option value="">Select Room</option>
                     @foreach ($model->getRoomOption() as $room)
-                        <option value="{{ $room->id }}"
-                            {{ $room->id == $model->room_id ? 'selected' : '' }}>{{ $room->room_number }} - ₹{{ $room->price }}/night
-                        </option>
+                    <option value="{{ $room->id }}"
+                        {{ old('room_id', $model->room_id) == $room->id ? 'selected' : '' }}>
+                        {{ $room->room_number }} - ₹{{ $room->price }}/night
+                    </option>
                     @endforeach
-
                 </select>
+
             </div>
             @error('room_id')
-                <p style="color:red;">{{ $errors->first('room_id') }}</p>
+            <p style="color:red;">{{ $errors->first('room_id') }}</p>
             @enderror
         </div>
 
@@ -47,7 +48,7 @@
                     value="{{ old('check_in', $model->check_in) }}">
             </div>
             @error('check_in')
-                <p style="color:red;">{{ $errors->first('check_in') }}</p>
+            <p style="color:red;">{{ $errors->first('check_in') }}</p>
             @enderror
         </div>
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
@@ -57,7 +58,7 @@
                     value="{{ old('check_out', $model->check_out) }}">
             </div>
             @error('check_out')
-                <p style="color:red;">{{ $errors->first('check_out') }}</p>
+            <p style="color:red;">{{ $errors->first('check_out') }}</p>
             @enderror
         </div>
         <div class="col-xl-4 col-lg-4 col-md-6 col-12">
@@ -66,15 +67,15 @@
 
                 <select name="is_paid" class="validate form-control" id="is_paid">
                     @foreach ($model->getIsPaidOptions() as $key => $state)
-                        <option value="{{ $key }}"
-                            {{ old('is_paid', $model->is_paid) == $key ? 'selected' : '' }}>
-                            {{ $state }}
-                        </option>
+                    <option value="{{ $key }}"
+                        {{ old('is_paid', $model->is_paid) == $key ? 'selected' : '' }}>
+                        {{ $state }}
+                    </option>
                     @endforeach
                 </select>
             </div>
             @error('is_paid')
-                <p style="color:red;">{{ $errors->first('is_paid') }}</p>
+            <p style="color:red;">{{ $errors->first('is_paid') }}</p>
             @enderror
         </div>
 
@@ -84,15 +85,15 @@
 
                 <select name="state_id" class="validate form-control" id="state_id">
                     @foreach ($model->getStateOptions() as $key => $state)
-                        <option value="{{ $key }}"
-                            {{ old('state_id', $model->state_id) == $key ? 'selected' : '' }}>
-                            {{ $state }}
-                        </option>
+                    <option value="{{ $key }}"
+                        {{ old('state_id', $model->state_id) == $key ? 'selected' : '' }}>
+                        {{ $state }}
+                    </option>
                     @endforeach
                 </select>
             </div>
             @error('state_id')
-                <p style="color:red;">{{ $errors->first('state_id') }}</p>
+            <p style="color:red;">{{ $errors->first('state_id') }}</p>
             @enderror
         </div>
 
@@ -112,9 +113,9 @@
                 <div class="downoad-btns text-end my-4">
                     <button class="btn btn-primary text-white ms-2">
                         @empty($model->exists)
-                            {{ __('Add') }}
+                        {{ __('Add') }}
                         @else
-                            {{ __('Update') }}
+                        {{ __('Update') }}
                         @endempty
                     </button>
 

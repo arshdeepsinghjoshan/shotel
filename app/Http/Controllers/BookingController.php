@@ -222,9 +222,6 @@ class BookingController extends Controller
             ->addColumn('room', function ($data) {
                 return !empty($data->room && $data->room->room_number) ? $data->room->room_number : 'N/A';
             })
-            ->addColumn('title', function ($data) {
-                return !empty($data->title) ? (strlen($data->title) > 60 ? substr(ucfirst($data->title), 0, 60) . '...' : ucfirst($data->title)) : 'N/A';
-            })
             ->addColumn('price', function ($data) {
                 return number_format($data->price, 2);
             })
