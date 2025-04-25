@@ -187,6 +187,15 @@ class UserController extends Controller
             ->addColumn('created_by', function ($data) {
                 return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
             })
+
+            ->addColumn('user', function ($data) {
+                return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
+            })
+
+
+            ->addColumn('table', function ($data) {
+                return !empty($data->createdBy && $data->createdBy->name) ? $data->createdBy->name : 'N/A';
+            })
             ->addColumn('name', function ($data) {
                 return !empty($data->name) ? (strlen($data->name) > 60 ? substr(ucfirst($data->name), 0, 60) . '...' : ucfirst($data->name)) : 'N/A';
             })

@@ -6,6 +6,7 @@ use App\Models\Cart;
 use Illuminate\Http\Request;
 use App\Models\Department;
 use App\Models\Product;
+use App\Models\Table;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +43,6 @@ class CartController extends Controller
                 ]);
             }
             $cartItem->delete();
-            self::addOrUpdateGrindPrice($request->grindPrice);
             return response()->json([
                 'status' => 200,
                 'message' => 'Cart removed!',
@@ -148,7 +148,6 @@ class CartController extends Controller
                 'quantity' => $quantity,
                 'total_price' => $totalPrice,
             ]);
-            self::addOrUpdateGrindPrice($request->grindPrice);
             return response()->json([
                 'status' => 200,
                 'message' => 'Quantity updated successfully!',
@@ -240,7 +239,6 @@ class CartController extends Controller
                 'quantity' => $quantity,
                 'total_price' => $totalPrice,
             ]);
-            self::addOrUpdateGrindPrice($request->grindPrice);
             return response()->json([
                 'status' => 200,
                 'message' => 'Quantity updated successfully!',
@@ -267,7 +265,6 @@ class CartController extends Controller
                     'message' => "Invalid grind Price.",
                 ]);
             }
-            self::addOrUpdateGrindPrice($request->grindPrice);
             return response()->json([
                 'status' => 200,
                 'message' => 'Quantity updated successfully!',
@@ -552,11 +549,11 @@ class CartController extends Controller
             ->addColumn('total_checkout_amount', function ($data) {
                 return number_format($data->getTotalPriceSum(), 2);
             })
-            ->addColumn('grind_price', function ($data) {
-                return ' <div data-mdb-input-init class="form-outline">
-                    <input id="grindPrice" min="0" data-grind="1" name="quantity" value="' . number_format($data->getGrindPrice(), 2) . '" type="text"  class="form-control" />
-                  </div>';
-            })
+            // ->addColumn('grind_price', function ($data) {
+            //     return ' <div data-mdb-input-init class="form-outline">
+            //         <input id="grindPrice" min="0" data-grind="1" name="quantity" value="' . number_format($data->getGrindPrice(), 2) . '" type="text"  class="form-control" />
+            //       </div>';
+            // })
             ->addColumn('total_checkout_quantity', function ($data) {
                 return number_format($data->getTotalQuantitySum(), 2);
             })
@@ -592,7 +589,7 @@ class CartController extends Controller
                 'created_at',
                 'status',
                 'customerClickAble',
-                'grind_price',
+                // 'grind_price',
                 'close',
                 'select'
             ])
@@ -626,9 +623,6 @@ class CartController extends Controller
             })
             ->make(true);
     }
-
-
-
 
 
 
@@ -692,7 +686,6 @@ class CartController extends Controller
                 $cart->created_by_id = Auth::id();
 
                 if ($cart->save()) {
-                    self::addOrUpdateGrindPrice($request->grindPrice);
                     return response()->json([
                         'status' => 200,
                         'message' => 'Product added to cart successfully!',
@@ -717,7 +710,6 @@ class CartController extends Controller
                 }
 
                 if ($cart->delete()) {
-                    self::addOrUpdateGrindPrice($request->grindPrice);
                     return response()->json([
                         'status' => 200,
                         'message' => 'Product removed from cart successfully!',
@@ -829,7 +821,6 @@ class CartController extends Controller
 
             // Save cart entry
             if ($cart->save()) {
-                self::addOrUpdateGrindPrice($request->grindPrice);
                 return response()->json([
                     'status' => 200,
                     'message' => 'Product added to cart successfully!',
@@ -848,6 +839,21 @@ class CartController extends Controller
             ]);
         }
     }
+
+
+
+    protected static function tableUserValidator(array $data)
+    {
+        return Validator::make(
+            $data,
+            [
+                'table_id' => 'required|exists:tables,id',
+                'user_id' => 'required|exists:users,id'
+            ]
+        );
+    }
+
+
 
 
     public function stateChange($id, $state)

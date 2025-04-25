@@ -36,6 +36,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Route::get('/', [SiteController::class, 'index']);
+
+//Guest Route
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::get('forget-password', [UserController::class, 'forgetPassword']);
@@ -50,13 +52,18 @@ Route::group(['middleware' => ['prevent-back-history']], function () {
 });
 Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
 
+    //Seaching Route
     Route::get('/user/list', [UserController::class, 'list']);
+    Route::get('/table/list', [TableController::class, 'list']);
 
     Route::group(['middleware' => ['auth', 'active']], function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/user/change-password', [UserController::class, 'changePassword']);
-        Route::post('/user/update-password', [UserController::class, 'updatePassword'])->name('password.update');;
 
+        //Dashboard Routes
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        //User Routes
+        Route::get('/user/change-password', [UserController::class, 'changePassword']);
+        Route::post('/user/update-password', [UserController::class, 'updatePassword'])->name('password.update');
         Route::get('user/create', [UserController::class, 'create']);
         Route::get('user/{role_id?}', [UserController::class, 'index']);
         Route::post('user/add', [UserController::class, 'add'])->name('user.add');
@@ -70,11 +77,10 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::post('/admin-serach', [UserController::class, 'search'])->name('admin.serach');
         Route::get('/serach-user/{id}', [UserController::class, 'searchUser'])->name('serach.user');
         Route::get('/user-login/{id}', [UserController::class, 'userLogin']);
+        Route::get('relation/get-list', [UserController::class, 'getrelationData']);
 
 
-
-
-
+        // Wallet Routes
         Route::get('wallet/create', [WalletController::class, 'create']);
         Route::get('wallet/', [WalletController::class, 'index']);
         Route::post('wallet/add', [WalletController::class, 'add'])->name('wallet.add');
@@ -82,14 +88,13 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::get('/wallet/edit/{id}', [WalletController::class, 'edit']);
         Route::get('/wallet/view/{id}', [WalletController::class, 'view']);
         Route::post('wallet/update/{id}', [WalletController::class, 'update'])->name('wallet.update');
-        Route::get('relation/get-list', [UserController::class, 'getrelationData']);
-
-
         Route::get('wallet/wallet-transaction', [WalletTransactionController::class, 'index']);
         Route::get('/wallet/wallet-transaction/get-list/{id?}', [WalletTransactionController::class, 'getWalletTransactionList']);
         Route::get('/wallet/wallet-transaction/view/{id}', [WalletTransactionController::class, 'view']);
+        Route::get('/wallet/fetch-transaction', [WalletTransactionController::class, 'fetchTransaction'])->name('wallet.fetchTransaction');
+        Route::get('/transactions', [WalletTransactionController::class, 'getTransactions'])->name('transactions.get');
 
-
+        // Subscription Plan Routes
         Route::get('subscription/plan/create', [SubscriptionPlanController::class, 'create']);
         Route::get('subscription/plan/', [SubscriptionPlanController::class, 'index']);
         Route::post('subscription/plan/add', [SubscriptionPlanController::class, 'add'])->name('subscriptionPlan.add');
@@ -98,19 +103,15 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::get('/subscription/plan/view/{id}', [SubscriptionPlanController::class, 'view']);
         Route::post('subscription/plan/update/{id}', [SubscriptionPlanController::class, 'update'])->name('subscriptionPlan.update');
 
+        // Subscription subscribed Plan Routes
         Route::get('subscription/subscribed-plan/', [SubscribedPlanController::class, 'index']);
         Route::get('/subscription/subscribed-plan/get-list/{id?}', [SubscribedPlanController::class, 'getSubscribedPlanList']);
         Route::get('/subscription/subscribed-plan/view/{id}', [SubscribedPlanController::class, 'view']);
         Route::get('subscription/subscribed-plan/{id}', [SubscribedPlanController::class, 'add']);
         Route::get('subscription/testing/', [SubscribedPlanController::class, 'testing']);
-
         Route::get('/subscription/totat-sale', [SubscribedPlanController::class, 'getSalesData'])->name('subscribed.totatSale');
-        Route::get('/wallet/fetch-transaction', [WalletTransactionController::class, 'fetchTransaction'])->name('wallet.fetchTransaction');
-        Route::get('/transactions', [WalletTransactionController::class, 'getTransactions'])->name('transactions.get');
 
-
-
-
+        //support Routes
         Route::get('support', [SupportController::class, 'index']);
         Route::get('support/create', [SupportController::class, 'create']);
         Route::post('support/add', [SupportController::class, 'add'])->name('support.add');
@@ -119,7 +120,7 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::get('/support/view/{id}', [SupportController::class, 'view']);
         Route::post('support/update', [SupportController::class, 'update'])->name('support.update');
 
-
+        // Support Department Routes
         Route::get('support/department', [SupportDepartmentController::class, 'index']);
         Route::post('support/department/add', [SupportDepartmentController::class, 'store'])->name('supportDepartment.add');
         Route::get('/support/department/get-list', [SupportDepartmentController::class, 'getDepartmenttList']);
@@ -131,7 +132,7 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
 
 
 
-
+        //product category Routes
         Route::get('product/category', [ProductCategoryController::class, 'index']);
         Route::post('product/category/add', [ProductCategoryController::class, 'store'])->name('productCategory.add');
         Route::get('/product/category/get-list', [ProductCategoryController::class, 'getDepartmenttList']);
@@ -141,7 +142,7 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::get('/product/category/stateChange/{id}/{state_id}', [ProductCategoryController::class, 'stateChange']);
         Route::get('/product/category/delete/{id}', [ProductCategoryController::class, 'finalDelete']);
 
-
+        // Product Routes
         Route::get('product', [ProductController::class, 'index']);
         Route::get('product/create', [ProductController::class, 'create']);
         Route::post('product/import', [ProductController::class, 'import'])->name('product.import');
@@ -152,7 +153,7 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::post('product/update', [ProductController::class, 'update'])->name('product.update');
 
 
-
+        // Order Routes
         Route::get('order', [OrderController::class, 'index'])->name('order');
         Route::get('order/create', [OrderController::class, 'create']);
         Route::post('order/import', [OrderController::class, 'import'])->name('order.import');
@@ -162,16 +163,14 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::get('/order/download/{id}', [OrderController::class, 'orderInvoice']);
         Route::get('/order/totat-sale', [OrderController::class, 'getSalesData'])->name('order.totatSale');
         Route::get('/order/generate-pdf/{id}', [OrderController::class, 'generatePDF']);
-
         Route::get('/order/view/{id}', [OrderController::class, 'view']);
         Route::post('order/update', [OrderController::class, 'update'])->name('order.update');
-
         Route::get('order/item', [OrderItemController::class, 'index']);
         Route::get('order/item/create', [OrderItemController::class, 'create']);
         Route::get('/order/item/get-list', [OrderItemController::class, 'getList']);
         Route::get('/order/item/view/{id}', [OrderItemController::class, 'view']);
 
-
+        // Cart Routes
         Route::get('cart', [CartController::class, 'index']);
         Route::get('cart/create', [CartController::class, 'create']);
         Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
@@ -184,16 +183,16 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::post('cart/update', [CartController::class, 'update'])->name('cart.update');
         Route::post('cart/delete-cart-item', [CartController::class, 'deleteCartItem']);
         Route::post('cart/update-grind-price', [CartController::class, 'updateGrindPrice']);
-
         Route::post('cart/custom-product', [CartController::class, 'customProduct']);
 
+        //Installment Routes
         Route::post('installment/store', [InstallmentController::class, 'store']);
         Route::get('installment', [InstallmentController::class, 'index']);
         Route::get('installment/create', [InstallmentController::class, 'create']);
         Route::get('/installment/get-list', [InstallmentController::class, 'getList']);
         Route::get('/installment/view/{id}', [InstallmentController::class, 'view']);
 
-
+        //Room Routes
         Route::post('room/store', [RoomController::class, 'store']);
         Route::get('room', [RoomController::class, 'index']);
         Route::get('room/create', [RoomController::class, 'create']);
@@ -203,7 +202,7 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::post('room/add', [RoomController::class, 'add'])->name('room.add');
         Route::get('/room/edit/{id}', [RoomController::class, 'edit']);
 
-
+        //Table Routes
         Route::post('table/store', [TableController::class, 'store']);
         Route::get('table', [TableController::class, 'index']);
         Route::get('table/create', [TableController::class, 'create']);
@@ -213,7 +212,7 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
         Route::post('table/add', [TableController::class, 'add'])->name('table.add');
         Route::get('/table/edit/{id}', [TableController::class, 'edit']);
 
-
+        // Booking Routes
         Route::post('booking/store', [BookingController::class, 'store']);
         Route::get('booking', [BookingController::class, 'index']);
         Route::get('booking/create', [BookingController::class, 'create']);
@@ -225,6 +224,7 @@ Route::group(['middleware' => ['prevent-back-history', 'admin']], function () {
 
 
 
+        // Reservation Routes
         Route::post('reservation/store', [ReservationController::class, 'store']);
         Route::get('reservation', [ReservationController::class, 'index']);
         Route::get('reservation/create', [ReservationController::class, 'create']);

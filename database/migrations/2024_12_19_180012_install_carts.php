@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('product_id')->default(0); // For order status
             $table->string('custom_product')->default(0); // For order status
             $table->decimal('delivery_charge', 20, 6)->unsigned()->default(0);
+            $table->integer('table_id')->nullable();
             $table->decimal('total_gst_amount', 20, 6)->unsigned()->default(0);
             $table->decimal('unit_gst_amount', 20, 6)->unsigned()->default(0);
             $table->decimal('total_discount', 20, 6)->unsigned()->nullable();

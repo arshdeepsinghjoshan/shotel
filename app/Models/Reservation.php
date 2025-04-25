@@ -127,10 +127,10 @@ class Reservation extends Model
         return User::where('state_id', User::STATE_ACTIVE)->get();
     }
 
-    // public function getTableOption()
-    // {
-    //     return Table::where('state_id', Table::STATE_ACTIVE)->get();
-    // }
+    public function getTableOption()
+    {
+        return Table::where('state_id', Table::STATE_ACTIVE)->get();
+    }
 
 
     public function updateMenuItems($action, $model = null)

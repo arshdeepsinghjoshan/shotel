@@ -14,8 +14,10 @@ class ATypeahead extends Component
 
     public $model;
     public $column;
-    public function __construct($column,$model = null )
+    public $minLength;
+    public function __construct($column,$model = null ,$minLength = 2)
     {
+        $this->minLength = $minLength;
         $this->column = $column;
         $this->model = $model;
     }

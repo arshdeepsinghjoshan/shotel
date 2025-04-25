@@ -34,6 +34,10 @@ class Table extends Model
             self::STATE_DELETE => "Delete",
         ];
     }
+    public function getNameAttribute()
+    {
+        return $this->table_number;
+    }
 
 
     public static function getStateOptionsBadge($stateValue)

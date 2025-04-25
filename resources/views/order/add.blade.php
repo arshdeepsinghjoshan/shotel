@@ -61,8 +61,15 @@
                             type="button"
                             class="btn btn-primary"
                             data-bs-toggle="modal"
+                            data-bs-target="#tableModal">
+                            Table
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
                             data-bs-target="#customerModal">
-                            Add Customers
+                            Customers
                         </button>
                         <button
                             type="button"
@@ -86,7 +93,7 @@
                 <div class="card-body">
                     <div class="table-responsive">
                         <x-a-grid-view :id="'cart_checkout'" :model="$model" :url="'cart/get-list/1/'" :filterButtonId="'order_filter_button'"
-                            :customfilterIds="['start_date', 'warehouse_id']" :columns="['grind_price','total_checkout_quantity','total_checkout_amount']" :paging="false" :searching="false"
+                            :customfilterIds="['start_date', 'warehouse_id']" :columns="['table','user','total_checkout_quantity','total_checkout_amount']" :paging="false" :searching="false"
                             :info="false" />
                     </div>
                     <div class="text-end mt-3">
@@ -190,18 +197,64 @@
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                                 Close
                             </button>
-                            <button type="submit" id="add-customer" class="btn btn-primary">Update</button>
+                            <button type="submit" id="add-customer" class="btn btn-primary submit-button">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+        <div class="modal fade" id="tableModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel1">Select and Add a table</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <form action="/" method="POST" class="ajax-form" id="ajaxform" data-success-callback="formSuccessCallback">
+
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="search_table_number" class="form-label">Search by Table number</label>
+                                    <input type="text" id="search_table_number" autocomplete="off" name="search_table_number" class="form-control" placeholder="Table-5 (8 seats)" />
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                            <button type="submit" id="update-table" class="btn btn-primary submit-button">Update</button>
+
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
     <x-a-typeahead :model="''" :column="[
     [
         'id' =>'search_name_phone_number',
         'url'=>'user/list',
+        'updater'=>'user_id'
+    ],
+
+       [
+        'id' =>'search_table_number',
+        'url'=>'table/list',
         'updater'=>'user_id'
     ],
     ]" />

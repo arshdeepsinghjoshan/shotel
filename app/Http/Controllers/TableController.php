@@ -26,6 +26,20 @@ class TableController extends Controller
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
+
+
+
+
+    public function list(Request $request)
+    {
+        $data = Table::findActive()
+            ->where('table_number', 'like', '%' . $request->input('query') . '%')
+            ->get();
+
+        return response()->json($data);
+    }
+
+
     public function import(Request $request)
     {
         try {

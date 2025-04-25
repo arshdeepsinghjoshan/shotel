@@ -27,7 +27,8 @@ return new class extends Migration
             $table->decimal('total_discount', 20, 6)->unsigned()->nullable();
             $table->integer('gift_card_id')->default(0);
             $table->integer('type_id')->nullable(); // 1 = Joining, 2 = Topup, 3 = Repurchase
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Assumes `users` table exists
+            $table->integer('table_id')->nullable();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->nullable(); // Assumes `users` table exists
             $table->string('merchant_transaction_id', 64)->nullable();
             $table->string('merchant_user_id', 64)->nullable();
             $table->integer('created_by_id')->nullable();

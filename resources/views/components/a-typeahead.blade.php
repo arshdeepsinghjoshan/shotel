@@ -7,17 +7,21 @@
         @foreach($column as $row)
             // Initialize the typeahead
             $jq('#{{ isset($row['id']) ? $row['id'] : '' }}').typeahead({
-                minLength: 3,
+                minLength: '{{ isset($row['minLength']) ? $row['minLength'] : 1 }}',
                 source: function(query, process) {
                     return $jq.get("{{ isset($row['url']) ? url($row['url']) : ''}}", { query: query }, function(data) {
-               
-
             return process(data);
                     });
                 },
                 displayText: function(item) {
-        return item.name + ' ' +item.contact_no; // Show only contact_no in the dropdown
-    },
+                    if (item.table_number) {
+                        return 'Table-' + item.table_number + ' (' + item.seats + ' seats)';
+                    } else if (item.name) {
+                        return item.name + (item.contact_no ? ' - ' + item.contact_no : '');
+                    } else {
+                        return 'Unknown';
+                    }
+                },
                 @if(isset($row['updater'])) 
                     updater: function(item) {
                         $jq('#{{ isset($row['updater']) ? $row['updater'] : '' }}').val(item.id);
